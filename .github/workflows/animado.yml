@@ -1,0 +1,94 @@
+# Vídeo 3D ANIMADO na nuvem (FÁBRICA 2.0, CEO 30/10: "faça um vídeo com as maquetes, animado, top de linha"; o PC está
+# sem memória). Vive no ramo animado como .github/workflows/animado.yml (quem o coloca lá é ops/sistema/animado_nuvem.py
+# --enviar); nunca vai ao main. Blender (bpy) e ffmpeg só nestes runners descartáveis. MENOR PRIVILÉGIO: token só de
+# leitura. 30/10: o 1º render (8 planos num runner só) passou das 2 h; agora 1 runner por plano, em paralelo, e os
+# planos passam à montagem pelo cache do Actions (a cota de artefatos está cheia). O vídeo volta no log (linhas @@ARQ).
+name: animado
+
+on:
+  push:
+    branches: [animado]
+    paths: ['animado/pedido.json']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: animado
+  cancel-in-progress: false
+
+jobs:
+  plano:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        plano: [S1, S2, S3, S4, S5, S6, S7, S8]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar o Blender como módulo
+        run: pip install -q bpy
+      - name: Animar o plano ${{ matrix.plano }}
+        shell: bash
+        run: |
+          set -o pipefail
+          COD=$(python -c "import json;print(json.load(open('animado/pedido.json'))['cod'])")
+          AM=$(python -c "import json;print(json.load(open('animado/pedido.json')).get('amostras', 12))")
+          ESC=$(python -c "import json;print(json.load(open('animado/pedido.json')).get('escala', 0.75))")
+          REAL=$(python -c "import json;print('--realista' if json.load(open('animado/pedido.json')).get('realista') else '')")
+          python ops/maquete3d/animar.py "$COD" build/planos --amostras "$AM" --escala "$ESC" --so ${{ matrix.plano }} $REAL 2>&1 | grep --line-buffered -v "^Fra:"
+      - uses: actions/cache/save@v4
+        with:
+          path: build/planos
+          key: animado-${{ github.run_id }}-${{ matrix.plano }}
+
+  montar:
+    needs: plano
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar (ffmpeg, fonte Liberation = medida da Arial)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg fonts-liberation > /dev/null
+          pip install -q pillow
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S1", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S2", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S3", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S4", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S5", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S6", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S7", fail-on-cache-miss: true}}
+      - {uses: actions/cache/restore@v4, with: {path: build/planos, key: "animado-${{ github.run_id }}-S8", fail-on-cache-miss: true}}
+      - name: Montar o vídeo e devolver no log
+        shell: bash
+        env:
+          TAVROV_FONTE: /usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf
+        run: |
+          set -o pipefail
+          COD=$(python -c "import json;print(json.load(open('animado/pedido.json'))['cod'])")
+          ROT=$(python -c "import json;print(json.load(open('animado/pedido.json'))['roteiro'])")
+          ls build/planos
+          mkdir -p saida
+          python ops/maquete3d/montar_animado.py "$ROT" build/planos "saida/$COD-animado-mudo.mp4"
+          ffmpeg -v error -y -i "saida/$COD-animado-mudo.mp4" -vf "fps=1,scale=180:-2,tile=6x3" -frames:v 1 "saida/$COD-animado-folha.jpg"
+          python - <<'PY'
+          import base64, glob, os
+          for f in sorted(glob.glob("saida/*")):
+              t = base64.b64encode(open(f, "rb").read()).decode()
+              for i in range(0, len(t), 4000):
+                  print(f"@@ARQ {os.path.basename(f)} {t[i:i + 4000]}")
+          PY

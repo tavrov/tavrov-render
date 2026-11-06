@@ -1,0 +1,67 @@
+{
+ "cod": "u11",
+ "planos": [
+  {
+   "pasta": "S1-gancho",
+   "fundo": "#2A1416",
+   "texto": "Stop losing your charger behind the desk. Only US$19.99.",
+   "miudo": "",
+   "segundos": 2.0
+  },
+  {
+   "pasta": "S2-giro",
+   "fundo": "#D9B65E",
+   "texto": "Lift. Lay the cable in. Snap.",
+   "miudo": "",
+   "segundos": 2.0
+  },
+  {
+   "pasta": "S3-regua",
+   "fundo": "#EFE6D6",
+   "texto": "US$19.99 · 6 clips · Free US shipping · 3-7 days",
+   "miudo": "",
+   "segundos": 3.0
+  },
+  {
+   "pasta": "S4-macro",
+   "fundo": "#2A1416",
+   "texto": "4.6 · 6,355 reviews in another store (not ours)",
+   "miudo": "",
+   "segundos": 2.0
+  },
+  {
+   "pasta": "S5-alto",
+   "fundo": "#EFE6D6",
+   "texto": "Real size: 2 x 2 x 1.5 cm each · Tavrov 3D render, not a photo",
+   "miudo": "",
+   "segundos": 2.0
+  },
+  {
+   "pasta": "S6-macro2",
+   "fundo": "#D9B65E",
+   "texto": "Lift. Lay the cable in. Snap.",
+   "miudo": "",
+   "segundos": 2.0
+  },
+  {
+   "pasta": "S7-topo",
+   "fundo": "#2A1416",
+   "texto": "Honest con: new at Tavrov, no reviews of this exact listing yet; holds cables under 7.5 mm only. @tavrovoficial · link in bio",
+   "miudo": "",
+   "segundos": 2.0
+  },
+  {
+   "pasta": "S8-destaque",
+   "fundo": "#EFE6D6",
+   "texto": "Lift. Lay the cable in. Snap.",
+   "miudo": "",
+   "segundos": 3.0
+  }
+ ],
+ "fecho": {
+  "texto": "@tavrovoficial",
+  "rodape": "link in bio",
+  "segundos": 1.5
+ },
+ "rotulo": "Tavrov 3D render · not a photo"
+}

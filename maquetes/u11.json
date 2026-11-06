@@ -1,0 +1,63 @@
+{
+ "codigo": "u11",
+ "nome": "Magnetic Cable Clips, 6 Pack",
+ "medidas_cm": {
+  "L": 2,
+  "P": 2,
+  "A": 1.5
+ },
+ "cameras": {
+  "frente": {
+   "az": -30,
+   "el": 30,
+   "lente": 70
+  },
+  "lado": {
+   "az": 58,
+   "el": 18,
+   "lente": 85
+  },
+  "detalhe": {
+   "az": -20,
+   "el": 34,
+   "lente": 100,
+   "alvo": [
+    3.0,
+    -1.8,
+    0.9
+   ],
+   "zoom": 2.4
+  }
+ },
+ "alt": "Maquete 3D do kit de 6 clipes magnéticos de cabo, pretos, 2 × 2 × 1,5 cm cada, 2 deles com a tampa aberta mostrando o canal do cabo",
+ "alt_en": "3D model of the set of 6 black magnetic cable clips, 2 × 2 × 1.5 cm each, 2 of them open showing the cable channel",
+ "referencias": [
+  "moeda",
+  "cartao"
+ ],
+ "pecas": [
+  {
+   "nome": "clipe (c1…c6)",
+   "forma": "base + tampa articulada atrás, canal redondo de 6,2 mm atravessando perto da frente",
+   "medida_cm": "2 × 2 × 1,5 cada",
+   "material": "plastico_fosco",
+   "cor": "#161618"
+  },
+  {
+   "nome": "fita",
+   "forma": "fita adesiva embaixo de cada clipe, 0,8 mm",
+   "material": "plastico_fosco",
+   "cor": "#D8D4CA"
+  },
+  {
+   "nome": "ímã",
+   "forma": "disco embutido no topo da base, atrás do canal (visível nos 2 clipes abertos)",
+   "material": "metal_pintado",
+   "cor": "#9EA3A8"
+  }
+ ],
+ "tipo": "clipes",
+ "conferir_peca": "c1-*",
+ "fonte_medidas": "fonte no repositório privado da Tavrov",
+ "referencia_visual": {}
+}
