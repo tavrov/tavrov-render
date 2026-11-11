@@ -1,0 +1,66 @@
+# Vozes na nuvem (CEO 30/10, LISTA 5h: "só Kokoro"; nada instalado no PC). Este arquivo vive no ramo vozes como
+# .github/workflows/vozes.yml (quem o coloca lá é ops/sistema/voz_lote.py --enviar); nunca vai ao main.
+# Kokoro-82M (Apache-2.0) roda no runner descartável e devolve só os .wav/.json como ARTEFATO (vozes-saida).
+# MENOR PRIVILÉGIO (como o voz.yml da ordem #237): instala código de terceiro, então o token é SÓ DE LEITURA e nada volta
+# como commit. Quem baixa: ops/sistema/voz_lote.py --receber.
+name: vozes
+
+on:
+  push:
+    branches: ['vozes', 'vozes-*']   # 06/11 (#435): 1 ramo por lote (ops/sistema/voz_lote.py)
+    paths: ['vozes/pedido/**', 'ops/video/vozes.py', '.github/workflows/vozes.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vozes
+  cancel-in-progress: false
+
+jobs:
+  falar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Cache do pip e do modelo (o Kokoro-82M baixa 1 vez)
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/huggingface
+          key: vozes-kokoro-0.9.4
+
+      - name: Instalar (Kokoro e misaki, Apache-2.0; torch só CPU; espeak-ng só aqui no runner para o português, decisão do cérebro 30/10)
+        shell: bash
+        run: |
+          pip install -q torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -q "kokoro==0.9.4" "misaki[en]==0.9.4" soundfile numpy
+          sudo apt-get install -y -qq espeak-ng > /dev/null   # fonetizador do PT (GPL): fica no runner descartável, nunca é distribuído
+
+      - name: Gerar as narrações
+        shell: bash
+        env:
+          HF_HUB_DISABLE_TELEMETRY: '1'
+        run: set -o pipefail; python ops/video/vozes.py 2>&1 | tee vozes.log
+
+      # 30/10: com a cota de artefatos cheia o upload falha; o áudio também sai no log (vozes.py imprimir)
+      - name: Devolver como artefato (também quando falha, com o log)
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: vozes-saida
+          path: |
+            vozes/saida
+            vozes.log
+          if-no-files-found: warn
+          retention-days: 7
