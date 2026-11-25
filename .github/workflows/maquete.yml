@@ -1,0 +1,52 @@
+# MAQUETE 3D de estúdio na nuvem PÚBLICA (31/10: o render da maquete estava travado no privado; o CEO liberou o
+# repositório público de render). Vive no ramo maquete do tavrov-render como .github/workflows/maquete.yml (quem põe é
+# ops/sistema/maquete_nuvem.py --enviar, pelo guarda pacote_publico.py); nunca vai ao main. Roda o gerar-3d.py de 1
+# produto (as 3 vistas, o cartão, o .glb e o maquete.json) e devolve tudo no log (linhas @@ARQ) e como artefato.
+name: maquete
+
+on:
+  push:
+    branches: [maquete]
+    paths: ['maquete/pedido.json']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  maquete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Instalar o Blender como módulo
+        run: pip install -q bpy pillow numpy
+      - name: Renderizar a maquete
+        shell: bash
+        run: |
+          set -o pipefail
+          COD=$(python -c "import json;print(json.load(open('maquete/pedido.json'))['cod'])")
+          python ops/gerar-3d.py "$COD" 2>&1 | grep --line-buffered -v "^Fra:"
+          mkdir -p saida
+          tar czf "saida/$COD-maquete.tgz" "public/maquetes/$COD" "maquetes/renders/$COD" 2>/dev/null || tar czf "saida/$COD-maquete.tgz" "public/maquetes/$COD"
+          python - <<'PY'
+          import base64, glob, os
+          for f in sorted(glob.glob("saida/*")):
+              t = base64.b64encode(open(f, "rb").read()).decode()
+              for i in range(0, len(t), 4000):
+                  print(f"@@ARQ {os.path.basename(f)} {t[i:i + 4000]}")
+          PY
+      - name: Devolver como artefato
+        if: always()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: maquete-saida
+          path: saida
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,63 @@
+{
+ "codigo": "p51",
+ "nome": "Kit 10 escovinhas para desentupir o chuveiro",
+ "medidas_cm": {
+  "L": 12.6,
+  "P": 9,
+  "A": 0.7
+ },
+ "cameras": {
+  "frente": {
+   "az": -30,
+   "el": 35,
+   "lente": 70
+  },
+  "lado": {
+   "az": 55,
+   "el": 25,
+   "lente": 85
+  },
+  "detalhe": {
+   "az": -40,
+   "el": 30,
+   "lente": 100,
+   "alvo": [
+    0,
+    3.5,
+    0.35
+   ],
+   "zoom": 2.4
+  }
+ },
+ "alt": "Maquete 3D representativa de um kit de 10 escovinhas brancas para desentupir os furos do chuveiro",
+ "referencias": [
+  "celular",
+  "moeda"
+ ],
+ "pecas": [
+  {
+   "nome": "cabo",
+   "forma": "cabo branco achatado com frisos de pega",
+   "medida_cm": "6 × 0,9 × 0,7",
+   "material": "plastico_fosco",
+   "cor": "#F2F2EF"
+  },
+  {
+   "nome": "pescoço",
+   "forma": "haste fina branca",
+   "medida_cm": "1,5 cm, 0,3 cm de diâmetro",
+   "material": "plastico_fosco",
+   "cor": "#F2F2EF"
+  },
+  {
+   "nome": "cerdas",
+   "forma": "ponta curta de cerdas de náilon brancas",
+   "medida_cm": "1,5 cm, 0,35 cm de diâmetro",
+   "material": "plastico_fosco",
+   "cor": "#FAFAF7"
+  }
+ ],
+ "tipo": "kit",
+ "fonte_medidas": "fonte no repositório privado da Tavrov",
+ "referencia_visual": {}
+}
